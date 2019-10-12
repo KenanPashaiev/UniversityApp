@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<ArrayOfUniversity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <University>
+    <GroupList />
+    <TeacherList>
+      <Teacher>
+        <Name>wqw</Name>
+        <Surname>saf</Surname>
+        <Age>25</Age>
+        <UniversityName>NURE</UniversityName>
+        <SubjectName>Kena</SubjectName>
+      </Teacher>
+    </TeacherList>
+    <SubjectList>
+      <Subject>
+        <_teacher>
+          <Name>wqw</Name>
+          <Surname>saf</Surname>
+          <Age>25</Age>
+          <UniversityName>NURE</UniversityName>
+          <SubjectName>Kena</SubjectName>
+        </_teacher>
+        <Name>Kena</Name>
+      </Subject>
+    </SubjectList>
+    <UniversityName>NURE</UniversityName>
+  </University>
+</ArrayOfUniversity>
