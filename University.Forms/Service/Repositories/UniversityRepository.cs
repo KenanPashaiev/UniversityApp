@@ -12,23 +12,23 @@ namespace UniversityApp.Forms.Service
 {
     public class UniversityRepository : RepositoryBase<University>, IUniversityRepository
     {
-        private readonly DataAccess _dataAccess;
+        private readonly DataAccessProvider _dataAccessProvider;
 
         public UniversityRepository()
         {
-            _dataAccess = new DataAccess();
+            _dataAccessProvider = new DataAccessProvider();
         }
 
-        public override void Create(University entity)
+        public override void Create(University university)
         {
-            var universityName = entity.UniversityName;
+            var universityName = university.UniversityName;
 
             if (universityName == string.Empty)
             {
                 throw new ArgumentNullException($"University name is empty");
             }
 
-            _dataAccess.ExecuteNonQuery($"INSERT INTO Universities (UniversityName) values (\'{universityName}\')");
+            _dataAccessProvider.ExecuteNonQuery($"INSERT INTO Universities (UniversityName) values (\'{universityName}\')");
         }
 
         public override void Delete(int universityId)
@@ -38,13 +38,13 @@ namespace UniversityApp.Forms.Service
                 throw new ArgumentNullException($"University ID is zero");
             }
 
-            _dataAccess.ExecuteNonQuery($"DELETE Universities WHERE UniversityID = {universityId}");
+            _dataAccessProvider.ExecuteNonQuery($"DELETE Universities WHERE UniversityID = {universityId}");
         }
 
-        public override void Update(University entity)
+        public override void Update(University university)
         {
-            var universityId = entity.UniversityId;
-            var universityName = entity.UniversityName;
+            var universityId = university.UniversityId;
+            var universityName = university.UniversityName;
 
             if (universityId == 0)
             {
@@ -56,12 +56,12 @@ namespace UniversityApp.Forms.Service
                 throw  new ArgumentNullException($"University name is empty");
             }
 
-            _dataAccess.ExecuteNonQuery($"UPDATE Universities SET UniversityName = {universityName} WHERE UniversityID = {universityId}");
+            _dataAccessProvider.ExecuteNonQuery($"UPDATE Universities SET UniversityName = \'{universityName}\' WHERE UniversityID = {universityId}");
         }
 
         public override DataTable FindAll()
         {
-            var table = _dataAccess.ExecuteQuery("SELECT * FROM Universities");
+            var table = _dataAccessProvider.ExecuteQuery("SELECT * FROM Universities");
 
             return table;
         }

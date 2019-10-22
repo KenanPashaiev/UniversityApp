@@ -5,6 +5,12 @@ using System.Linq;
 using System.Data.SqlClient;
 using System.Windows.Forms;
 using System.Configuration;
+using System.Deployment.Application;
+using UniversityApp.Entities;
+using UniversityApp.Forms.Service;
+using UniversityApp.Forms.Service.Repositories;
+using UniversityApp.Forms.Service.Validation;
+using UniversityApp.Forms.Validation;
 
 namespace UniversityApp.Forms
 {
@@ -18,156 +24,89 @@ namespace UniversityApp.Forms
 
     public partial class Form1 : Form
     {
-        public Inspecting Inspecting { get; private set; }
-        public List<int> InspectingList;
-        
+        private readonly DataAccessProvider _dataAccessProvider;
+        private readonly List<int> _inspectingList;
+        private Inspecting _inspecting;
+
         public Form1()
         {
             InitializeComponent();
-            Inspecting = Inspecting.Universities;
-            InspectingList = new List<int>();
+            _inspecting = Inspecting.Universities;
+            _inspectingList = new List<int>();
+            _dataAccessProvider = new DataAccessProvider();
             RefreshUniversitiesList();
-            
-        }
-
-        private DataTable SelectQuery(string statement)
-        {
-            DataTable table = new DataTable();
-            var connectionString = "Data Source=DESKTOP-I35U24I;Initial Catalog=UniversitiesDatabase;Integrated Security=True";
-            using (var connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-
-                var adapter = new SqlDataAdapter(statement, connection);
-
-                adapter.Fill(table);
-            }
-
-            return table;
-        }
-
-        private void NonQuery(string statement)
-        {
-            var connectionString = "Data Source=DESKTOP-I35U24I;Initial Catalog=UniversitiesDatabase;Integrated Security=True";
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-
-                SqlCommand command = new SqlCommand(statement, connection);
-                command.ExecuteNonQuery();
-            }
         }
 
         ////Adding
         //Adding Button Clicks
         private void AddUniversityButton_Click(object sender, EventArgs e)
         {
-            var universityName = addUniversityNameTextBox.Text;
+            var universityRepository = new UniversityRepository();
+            var universityValidation = new UniversityValidation();
 
-            if (!IsValidUniversity(universityName) && Inspecting != Inspecting.Universities)
+            var university = new University(addUniversityNameTextBox.Text);
+
+            if (!universityValidation.IsValidUniversity(university) && _inspecting != Inspecting.Universities)
             {
                 return;
             }
 
-            NonQuery($"INSERT INTO Universities (UniversityName) values ('{universityName}')");
+            universityRepository.Create(university);
 
             RefreshUniversitiesList();
         }
 
         private void AddGroupButton_Click(object sender, EventArgs e)
         {
-            var groupName = addGroupNameTextBox.Text;
+            var groupRepository = new GroupRepository();
+            var groupValidation = new GroupValidation();
 
-            if (!IsValidGroup(groupName))
+            var groupName = addGroupNameTextBox.Text;
+            var group = new Group(groupName);
+
+            if (groupValidation.IsValidGroup(group))
             {
                 return;
             }
 
-            NonQuery("INSERT INTO Groups (GroupName, UniversityID) " +
-                        $"values ('{groupName}', {InspectingList.Last()} )");
+            groupRepository.Create(group);
 
-            RefreshGroupsList(InspectingList.Last());
+            RefreshGroupsList(_inspectingList.Last());
         }
 
         private void AddStudentButton_Click(object sender, EventArgs e)
         {
-            var age = (int)addStudentAgeNumericUpDown.Value;
+            var studentRepository = new StudentRepository();
+            var studentValidation = new StudentValidation();
+
             var name = addStudentNameTextBox.Text;
             var surname = addStudentSurnameTextBox.Text;
+            var age = (int)addStudentAgeNumericUpDown.Value;
+            var student = new Student(name, surname, age);
 
-            if (!IsValidStudent(name, surname, age))
+            if (!studentValidation.IsValidStudent(student))
             {
                 return;
             }
 
-            NonQuery("INSERT INTO Students (StudentName, StudentSurname, StudentAge, GroupID) " +
-                        $"values ('{name}', '{surname}', {age}, {InspectingList.Last()} )");
+            studentRepository.Create(student);
 
-            RefreshStudentsList(InspectingList.Last());
+            RefreshStudentsList(_inspectingList.Last());
         }
 
         private void AddRecordButton_Click(object sender, EventArgs e)
         {
-            var table = SelectQuery("SELECT * FROM Subjects WHERE UniversityID = " + InspectingList.First());
+            var table = _dataAccessProvider.ExecuteQuery("SELECT * FROM Subjects WHERE UniversityID = " + _inspectingList.First());
             DataRow row = table.Select($"SubjectName = \'{subjectsComboBox.Text}\' ").Single();
             var mark = subjectsNumeric.Value;
             var subjectId = row.Field<int>("SubjectID");
 
-            NonQuery("INSERT INTO Records (Mark, StudentID, SubjectID) " +
-                        $"values ('{mark}', '{InspectingList.Last()}', {subjectId})");
+            _dataAccessProvider.ExecuteNonQuery("INSERT INTO Records (Mark, StudentID, SubjectID) " +
+                        $"values ('{mark}', '{_inspectingList.Last()}', {subjectId})");
 
-            RefreshRecordsList(InspectingList.Last());
+            RefreshRecordsList(_inspectingList.Last());
         }
 
-        //Check add info
-        private bool IsValidUniversity(string universityName)
-        {
-            if (universityName == string.Empty)
-            {
-                MessageBox.Show("University name textbox is empty");
-                return false;
-            }
-
-            if (Inspecting != Inspecting.Universities)
-            {
-                MessageBox.Show("To add a university the university list should be opened");
-                return false;
-            }
-
-            return true;
-        }
-
-        private bool IsValidGroup(string groupName)
-        {
-            if (groupName == string.Empty)
-            {
-                MessageBox.Show("Group name textbox is empty");
-                return false;
-            }
-
-            if (Inspecting != Inspecting.Groups)
-            {
-                MessageBox.Show("To add group a group list should be opened");
-                return false;
-            }
-
-            return true;
-        }
-
-        private bool IsValidStudent(string name, string surname, int age)
-        {
-            if (name == string.Empty ||
-                surname == string.Empty)
-            {
-                MessageBox.Show("Name or surname textbox is empty");
-                return false;
-            }
-
-            if (Inspecting == Inspecting.Students) return true;
-            MessageBox.Show("To add student a student list should be opened");
-            return false;
-
-        }
         ////
 
         //Return Back
@@ -175,25 +114,25 @@ namespace UniversityApp.Forms
         {
             RefreshUniversitiesList();
 
-            if(InspectingList.Any())
+            if(_inspectingList.Any())
             {
-                InspectingList.RemoveAt(InspectingList.Count - 1);
+                _inspectingList.RemoveAt(_inspectingList.Count - 1);
             }
 
-            if (Inspecting == Inspecting.Groups)
+            if (_inspecting == Inspecting.Groups)
             {
                 RefreshUniversitiesList();
-                Inspecting = Inspecting.Universities;
+                _inspecting = Inspecting.Universities;
             }
-            else if(Inspecting == Inspecting.Students)
+            else if(_inspecting == Inspecting.Students)
             {
-                RefreshGroupsList(InspectingList.Last());
-                Inspecting = Inspecting.Groups;
+                RefreshGroupsList(_inspectingList.Last());
+                _inspecting = Inspecting.Groups;
             }
-            else if(Inspecting == Inspecting.StudentMarks)
+            else if(_inspecting == Inspecting.StudentMarks)
             {
-                RefreshStudentsList(InspectingList.Last());
-                Inspecting = Inspecting.Students;
+                RefreshStudentsList(_inspectingList.Last());
+                _inspecting = Inspecting.Students;
             }
         }
 
@@ -205,15 +144,15 @@ namespace UniversityApp.Forms
                 return;
             }
 
-            if (Inspecting == Inspecting.Universities)
+            if (_inspecting == Inspecting.Universities)
             {
                 SelectCellFromUniversityRow(e);
             }
-            else if (Inspecting == Inspecting.Groups)
+            else if (_inspecting == Inspecting.Groups)
             {
                 SelectCellFromGroupRow(e);
             }
-            else if (Inspecting == Inspecting.Students)
+            else if (_inspecting == Inspecting.Students)
             {
                 SelectCellFromStudentRow(e);
             }
@@ -235,10 +174,12 @@ namespace UniversityApp.Forms
                 return;
             }
 
-            var table = SelectQuery("SELECT * FROM Universities");
+            var universityRepository = new UniversityRepository();;
+
+            var table = universityRepository.FindAll();
             var universityId = table.Rows[e.RowIndex].Field<int>("UniversityID");
-            Inspecting = Inspecting.Groups;
-            InspectingList.Add(universityId);
+            _inspecting = Inspecting.Groups;
+            _inspectingList.Add(universityId);
             RefreshGroupsList(universityId);
         }
 
@@ -250,10 +191,12 @@ namespace UniversityApp.Forms
                 return;
             }
 
-            var table = SelectQuery("SELECT * FROM Groups WHERE UniversityID = " + InspectingList.Last());
+            var groupRepository = new GroupRepository();
+
+            var table = groupRepository.FindAllFrom(_inspectingList.Last());
             var groupId = table.Rows[e.RowIndex].Field<int>("GroupID");
-            Inspecting = Inspecting.Students;
-            InspectingList.Add(groupId);
+            _inspecting = Inspecting.Students;
+            _inspectingList.Add(groupId);
             RefreshStudentsList(groupId);
         }
 
@@ -265,10 +208,12 @@ namespace UniversityApp.Forms
                 return;
             }
 
-            DataTable table = SelectQuery("SELECT * FROM Students WHERE GroupID = " + InspectingList.Last());
-            int studentId = table.Rows[e.RowIndex].Field<int>("StudentID");
-            Inspecting = Inspecting.StudentMarks;
-            InspectingList.Add(studentId);
+            var studentRepository = new StudentRepository();
+
+            var table = studentRepository.FindAllFrom(_inspectingList.Last());
+            var studentId = table.Rows[e.RowIndex].Field<int>("StudentID");
+            _inspecting = Inspecting.StudentMarks;
+            _inspectingList.Add(studentId);
             RefreshRecordsList(studentId);
         }
 
@@ -276,14 +221,15 @@ namespace UniversityApp.Forms
         private void RefreshUniversitiesList()
         {
             universityDataGridView.DataSource = null;
-            var table = SelectQuery("SELECT UniversityID, UniversityName FROM Universities");
+
+            var table = _dataAccessProvider.ExecuteQuery("SELECT UniversityID, UniversityName FROM Universities");
             universityDataGridView.DataSource = table;
             universityDataGridView.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCellsExceptHeader;
         }
 
         private void RefreshGroupsList(int universityId)
         {
-            var table = SelectQuery("SELECT g.GroupId, g.GroupName, u.UniversityName " +
+            var table = _dataAccessProvider.ExecuteQuery("SELECT g.GroupId, g.GroupName, u.UniversityName " +
                                           "FROM Groups AS g " +
                                           "INNER JOIN Universities as u " +
                                           "ON u.UniversityID = g.UniversityID " +
@@ -298,7 +244,7 @@ namespace UniversityApp.Forms
 
         private void RefreshStudentsList(int groupId)
         {
-            var table = SelectQuery("SELECT s.StudentID, s.StudentName, s.StudentSurname, s.StudentAge, g.GroupName " +
+            var table = _dataAccessProvider.ExecuteQuery("SELECT s.StudentID, s.StudentName, s.StudentSurname, s.StudentAge, g.GroupName " +
                                           "FROM Students AS s " +
                                           "INNER JOIN Groups as g " +
                                           "ON g.GroupID = s.GroupID " +
@@ -311,7 +257,7 @@ namespace UniversityApp.Forms
 
         private void RefreshRecordsList(int studentId)
         {
-            var table = SelectQuery("SELECT r.RecordID, su.SubjectName, r.Mark "+
+            var table = _dataAccessProvider.ExecuteQuery("SELECT r.RecordID, su.SubjectName, r.Mark " +
                                             "FROM Records AS r " + 
                                             "INNER JOIN Subjects as su " +
                                             "ON su.SubjectID = r.SubjectID " +
@@ -324,53 +270,49 @@ namespace UniversityApp.Forms
 
         private void RefreshSubjectsList(int universityId)
         {
-            var subjectList = SelectQuery("SELECT SubjectName FROM Subjects WHERE UniversityID = " + universityId);
+            var subjectList = _dataAccessProvider.ExecuteQuery("SELECT SubjectName FROM Subjects WHERE UniversityID = " + universityId);
             for(int i = 0; i < subjectList.Rows.Count; i++)
             {
                 subjectsComboBox.Items.Add(subjectList.Rows[i].Field<string>(0));
             }
         }
-
-        private void EditSubjectsButton_Click(object sender, EventArgs e)
-        {
-            var form = new SubjectEditForm(InspectingList.First());
-            form.Show();
-        }
-
+        
         private void DeleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var selectedRow = (DataRowView)universityDataGridView.SelectedRows[0].DataBoundItem;
 
-            switch (Inspecting)
+            switch (_inspecting)
             {
                 case Inspecting.Universities:
                 {
                     var universityId = selectedRow.Row.Field<int>("UniversityID");
-                    NonQuery($"DELETE Universities WHERE UniversityID = {universityId}");
+                    _dataAccessProvider.ExecuteNonQuery($"DELETE Universities WHERE UniversityID = {universityId}");
                     RefreshUniversitiesList();
                     break;
                 }
                 case Inspecting.Groups:
                 {
                     var groupId = selectedRow.Row.Field<int>("GroupID");
-                    NonQuery($"DELETE Groups WHERE GroupID = {groupId}");
-                    RefreshGroupsList(InspectingList.Last());
+                    _dataAccessProvider.ExecuteNonQuery($"DELETE Groups WHERE GroupID = {groupId}");
+                    RefreshGroupsList(_inspectingList.Last());
                     break;
                 }
                 case Inspecting.Students:
                 {
                     var studentId = selectedRow.Row.Field<int>("StudentID");
-                    NonQuery($"DELETE Students WHERE StudentID = {studentId}");
-                    RefreshStudentsList(InspectingList.Last());
+                    _dataAccessProvider.ExecuteNonQuery($"DELETE Students WHERE StudentID = {studentId}");
+                    RefreshStudentsList(_inspectingList.Last());
                     break;
                 }
                 case Inspecting.StudentMarks:
                 {
                     var recordId = selectedRow.Row.Field<int>("RecordID");
-                    NonQuery($"DELETE Records WHERE RecordID = {recordId}");
-                    RefreshStudentsList(InspectingList.Last());
+                    _dataAccessProvider.ExecuteNonQuery($"DELETE Records WHERE RecordID = {recordId}");
+                    RefreshStudentsList(_inspectingList.Last());
                     break;
                 }
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }

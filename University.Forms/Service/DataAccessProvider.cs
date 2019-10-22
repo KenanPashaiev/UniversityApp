@@ -4,10 +4,11 @@ using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using UniversityApp.Forms.Service.Abstractions;
 
 namespace UniversityApp.Forms.Service
 {
-    public class DataAccess
+    public class DataAccessProvider : IDataAccessProvider
     {
         public DataTable ExecuteQuery(string command)
         {

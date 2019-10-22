@@ -1,33 +1,30 @@
 ﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UniversityApp.Entities;
 
 namespace UniversityApp.Forms.Service.Abstractions
 {
     public abstract class RepositoryBase<T> : IRepositoryBase<T>
     {
-        public virtual void Create(T entity)
-        {
+        protected readonly DataAccessProvider _dataAccessProvider;
 
+        protected RepositoryBase()
+        {
+            _dataAccessProvider = new DataAccessProvider();
         }
 
-        public virtual void Delete(int id)
-        {
+        public abstract void Create(T entity);
 
-        }
+        public abstract void Delete(int id);
 
-        public virtual void Update(T entity)
-        {
+        public abstract void Update(T entity);
 
-        }
-
-        public virtual DataTable FindAll()
-        {
-            return null;
-        }
+        public abstract DataTable FindAll();
     }
 }

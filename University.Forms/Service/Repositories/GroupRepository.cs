@@ -11,17 +11,17 @@ namespace UniversityApp.Forms.Service.Repositories
 {
     public class GroupRepository : RepositoryBase<Group>, IGroupRepository
     {
-        private readonly DataAccess _dataAccess;
+        private readonly DataAccessProvider _dataAccessProvider;
 
         public GroupRepository()
         {
-            _dataAccess = new DataAccess();
+            _dataAccessProvider = new DataAccessProvider();
         }
 
-        public override void Create(Group entity)
+        public override void Create(Group group)
         {
-            var groupName = entity.GroupName;
-            var universityId = entity.UniversityId;
+            var groupName = group.GroupName;
+            var universityId = group.UniversityId;
 
             if (groupName == string.Empty)
             {
@@ -33,7 +33,7 @@ namespace UniversityApp.Forms.Service.Repositories
                 throw new ArgumentNullException($"University ID is zero");
             }
 
-            _dataAccess.ExecuteNonQuery($"INSERT INTO Groups (GroupName) values (\'{groupName}\')");
+            _dataAccessProvider.ExecuteNonQuery($"INSERT INTO Groups (GroupName) values (\'{groupName}\')");
         }
 
         public override void Delete(int groupId)
@@ -43,14 +43,14 @@ namespace UniversityApp.Forms.Service.Repositories
                 throw new ArgumentNullException($"Group ID is zero");
             }
 
-            _dataAccess.ExecuteNonQuery($"DELETE Groups WHERE GroupID = {groupId}");
+            _dataAccessProvider.ExecuteNonQuery($"DELETE Groups WHERE GroupID = {groupId}");
         }
 
-        public override void Update(Group entity)
+        public override void Update(Group group)
         {
-            var groupId = entity.GroupId;
-            var groupName = entity.GroupName;
-            var universityId = entity.UniversityId;
+            var groupId = group.GroupId;
+            var groupName = group.GroupName;
+            var universityId = group.UniversityId;
 
             if (groupId == 0)
             {
@@ -67,19 +67,19 @@ namespace UniversityApp.Forms.Service.Repositories
                 throw new ArgumentNullException($"University ID is zero");
             }
 
-            _dataAccess.ExecuteNonQuery($"UPDATE Groups SET GroupName = {groupName}, UniversityID = {universityId} WHERE UniversityID = {groupId}");
+            _dataAccessProvider.ExecuteNonQuery($"UPDATE Groups SET GroupName = \'{groupName}\', UniversityID = {universityId} WHERE GroupID = {groupId}");
         }
 
         public override DataTable FindAll()
         {
-            var table = _dataAccess.ExecuteQuery("SELECT * FROM Groups");
+            var table = _dataAccessProvider.ExecuteQuery("SELECT * FROM Groups");
 
             return table;
         }
 
         public DataTable FindAllFrom(int universityId)
         {
-            var table = _dataAccess.ExecuteQuery($"SELECT * FROM Groups WHERE UniversityID = {universityId}");
+            var table = _dataAccessProvider.ExecuteQuery($"SELECT * FROM Groups WHERE UniversityID = {universityId}");
 
             return table;
         }

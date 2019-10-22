@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UniversityApp.Entities;
 
 namespace UniversityApp.Forms.Service.Abstractions
 {
-    public interface IRepositoryBase<T>
+    public interface IStudentRepository : IRepositoryBase<Student>
     {
-        void Create(T @group);
-        void Delete(int id);
-        void Update(T entity);
-        DataTable FindAll();
+
     }
 }
