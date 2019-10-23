@@ -7,28 +7,18 @@ using System.Text;
 using System.Threading.Tasks;
 using UniversityApp.Entities;
 using UniversityApp.Forms.Service.Abstractions;
+using UniversityApp.Forms.Service.Validation;
 
 namespace UniversityApp.Forms.Service
 {
     public class UniversityRepository : RepositoryBase<University>, IUniversityRepository
     {
-        private readonly DataAccessProvider _dataAccessProvider;
-
-        public UniversityRepository()
-        {
-            _dataAccessProvider = new DataAccessProvider();
-        }
-
         public override void Create(University university)
         {
-            var universityName = university.UniversityName;
-
-            if (universityName == string.Empty)
+            if (UniversityValidation.IsValidUniversity(university))
             {
-                throw new ArgumentNullException($"University name is empty");
+                DataAccessProvider.ExecuteNonQuery($"INSERT INTO Universities (UniversityName) values (\'{universityName}\')");
             }
-
-            _dataAccessProvider.ExecuteNonQuery($"INSERT INTO Universities (UniversityName) values (\'{universityName}\')");
         }
 
         public override void Delete(int universityId)
@@ -38,7 +28,7 @@ namespace UniversityApp.Forms.Service
                 throw new ArgumentNullException($"University ID is zero");
             }
 
-            _dataAccessProvider.ExecuteNonQuery($"DELETE Universities WHERE UniversityID = {universityId}");
+            DataAccessProvider.ExecuteNonQuery($"DELETE Universities WHERE UniversityID = {universityId}");
         }
 
         public override void Update(University university)
@@ -51,17 +41,15 @@ namespace UniversityApp.Forms.Service
                 throw new ArgumentNullException($"University ID is zero");
             }
 
-            if (universityName == string.Empty)
+            if (UniversityValidation.IsValidUniversity(university))
             {
-                throw  new ArgumentNullException($"University name is empty");
+                DataAccessProvider.ExecuteNonQuery($"UPDATE Universities SET UniversityName = \'{universityName}\' WHERE UniversityID = {universityId}");
             }
-
-            _dataAccessProvider.ExecuteNonQuery($"UPDATE Universities SET UniversityName = \'{universityName}\' WHERE UniversityID = {universityId}");
         }
 
         public override DataTable FindAll()
         {
-            var table = _dataAccessProvider.ExecuteQuery("SELECT * FROM Universities");
+            var table = DataAccessProvider.ExecuteQuery("SELECT * FROM Universities");
 
             return table;
         }

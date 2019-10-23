@@ -11,6 +11,7 @@ namespace UniversityApp.Forms.Service.Validation
         {
             DataAccessProvider = new DataAccessProvider();;
         }
+
         public static bool IsValidUniversity(University university)
         {
             if (university == null)
@@ -18,7 +19,7 @@ namespace UniversityApp.Forms.Service.Validation
                 throw new ArgumentNullException();
             }
 
-            if (university.UniversityName == string.Empty)
+            if (string.IsNullOrEmpty(university.UniversityName))
             {
                 throw  new ArgumentException($"Invalid university name \'{university.UniversityName}\'");
             }
@@ -26,9 +27,20 @@ namespace UniversityApp.Forms.Service.Validation
             return true;
         }
 
+        public static bool IsValidUniversityId(int universityId)
+        {
+            if (universityId <= 0)
+            {
+                throw new ArgumentException($"Invalid university id \'{universityId}\'");
+            }
+
+            return true;
+        }
+
         public static bool IsPresent(University university)
         {
-            var table = DataAccessProvider.ExecuteQuery($"SELECT * FROM Universities WHERE UniversityName = \'{university.UniversityName}\'");
+            var table = DataAccessProvider.ExecuteQuery($"SELECT * FROM Universities WHERE " +
+                                                        $"UniversityName = \'{university.UniversityName}\'");
             return table.Rows.Count <= 0;
         }
     }

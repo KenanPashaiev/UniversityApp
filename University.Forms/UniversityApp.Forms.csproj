@@ -70,6 +70,7 @@
     <Compile Include="Validation\GroupValidation.cs" />
     <Compile Include="Validation\RecordValidation.cs" />
     <Compile Include="Validation\StudentValidation.cs" />
+    <Compile Include="Validation\SubjectValidation.cs" />
     <Compile Include="Validation\TeacherValidation.cs" />
     <Compile Include="Validation\UniversityValidation.cs" />
     <Compile Include="SubjectEditForm.cs">

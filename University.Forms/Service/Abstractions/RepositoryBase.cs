@@ -12,11 +12,11 @@ namespace UniversityApp.Forms.Service.Abstractions
 {
     public abstract class RepositoryBase<T> : IRepositoryBase<T>
     {
-        protected readonly DataAccessProvider _dataAccessProvider;
+        protected readonly DataAccessProvider DataAccessProvider;
 
         protected RepositoryBase()
         {
-            _dataAccessProvider = new DataAccessProvider();
+            DataAccessProvider = new DataAccessProvider();
         }
 
         public abstract void Create(T entity);

@@ -17,19 +17,19 @@ namespace UniversityApp.Forms.Validation
             DataAccessProvider = new DataAccessProvider();
         }
 
-        public bool IsValidStudent(Teacher teacher)
+        public bool IsValidTeacher(Teacher teacher)
         {
             if (teacher == null)
             {
                 throw new ArgumentNullException(nameof(teacher));
             }
 
-            if (teacher.TeacherName == string.Empty)
+            if (string.IsNullOrEmpty(teacher.TeacherName))
             {
                 throw new ArgumentException($"Invalid teacher name \'{teacher.TeacherName}\'");
             }
 
-            if (teacher.TeacherSurname == string.Empty)
+            if (string.IsNullOrEmpty(teacher.TeacherSurname))
             {
                 throw new ArgumentException($"Invalid teacher surname \'{teacher.TeacherSurname}\'");
             }
@@ -37,6 +37,16 @@ namespace UniversityApp.Forms.Validation
             if (teacher.TeacherAge <= 24 || teacher.TeacherAge >= 90)
             {
                 throw new ArgumentException($"Invalid teacher age \'{teacher.TeacherAge}\'");
+            }
+
+            return true;
+        }
+
+        public static bool IsValidTeacherId(int teacherId)
+        {
+            if (teacherId <= 0)
+            {
+                throw new ArgumentException($"Invalid teacher id \'{teacherId}\'");
             }
 
             return true;

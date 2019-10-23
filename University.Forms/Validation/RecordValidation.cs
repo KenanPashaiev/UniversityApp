@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UniversityApp.Entities;
 using UniversityApp.Forms.Service;
+using UniversityApp.Forms.Service.Abstractions;
 
 namespace UniversityApp.Forms.Validation
 {
     public class RecordValidation
     {
-        private static readonly DataAccessProvider DataAccessProvider;
+        private static readonly IDataAccessProvider DataAccessProvider;
 
         static RecordValidation()
         {
@@ -37,6 +34,16 @@ namespace UniversityApp.Forms.Validation
             if (record.SubjectId <= 0)
             {
                 throw new ArgumentException($"Invalid subject id \'{record.SubjectId}\'");
+            }
+
+            return true;
+        }
+
+        public static bool IsValidRecordId(int recordId)
+        {
+            if (recordId <= 0)
+            {
+                throw new ArgumentException($"Invalid record id \'{recordId}\'");
             }
 
             return true;

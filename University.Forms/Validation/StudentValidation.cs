@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UniversityApp.Entities;
 using UniversityApp.Forms.Service;
+using UniversityApp.Forms.Service.Abstractions;
 
 namespace UniversityApp.Forms.Validation
 {
     public class StudentValidation
     {
-        protected readonly DataAccessProvider DataAccessProvider;
+        protected readonly IDataAccessProvider DataAccessProvider;
 
         public StudentValidation()
         {
@@ -24,12 +21,12 @@ namespace UniversityApp.Forms.Validation
                 throw new ArgumentNullException(nameof(student));
             }
 
-            if (student.StudentName == string.Empty)
+            if (string.IsNullOrEmpty(student.StudentName))
             {
                 throw new ArgumentException($"Invalid student name \'{student.StudentName}\'");
             }
 
-            if (student.StudentSurname == string.Empty)
+            if (string.IsNullOrEmpty(student.StudentSurname))
             {
                 throw new ArgumentException($"Invalid student surname \'{student.StudentSurname}\'");
             }
@@ -37,6 +34,16 @@ namespace UniversityApp.Forms.Validation
             if (student.StudentAge <= 16 || student.StudentAge >= 30)
             {
                 throw new ArgumentException($"Invalid student age \'{student.StudentAge}\'");
+            }
+
+            return true;
+        }
+
+        public static bool IsValidTeacherId(int teacherId)
+        {
+            if (teacherId <= 0)
+            {
+                throw new ArgumentException($"Invalid teacher id \'{teacherId}\'");
             }
 
             return true;
