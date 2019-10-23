@@ -2,7 +2,7 @@
 
 namespace UniversityApp.Forms.Service.Abstractions
 {
-    public interface IUniversityRepository : IRepositoryBase<University>
+    public interface ISubjectRepository : IRepositoryBase<Subject>
     {
 
     }

@@ -1,15 +1,17 @@
 ﻿using System;
 using UniversityApp.Entities;
+using UniversityApp.Forms.Service;
+using UniversityApp.Forms.Service.Abstractions;
 
-namespace UniversityApp.Forms.Service.Validation
+namespace UniversityApp.Forms.Validation
 {
     public class UniversityValidation
     {
-        private static readonly DataAccessProvider DataAccessProvider;
+        private static readonly IDataAccessProvider DataAccessProvider;
 
         static UniversityValidation()
         {
-            DataAccessProvider = new DataAccessProvider();;
+            DataAccessProvider = new DataAccessProvider();
         }
 
         public static bool IsValidUniversity(University university)

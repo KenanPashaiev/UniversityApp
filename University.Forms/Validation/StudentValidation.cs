@@ -7,14 +7,14 @@ namespace UniversityApp.Forms.Validation
 {
     public class StudentValidation
     {
-        protected readonly IDataAccessProvider DataAccessProvider;
+        private static readonly IDataAccessProvider DataAccessProvider;
 
-        public StudentValidation()
+        static StudentValidation()
         {
-            DataAccessProvider = new DataAccessProvider(); ;
+            DataAccessProvider = new DataAccessProvider();
         }
 
-        public bool IsValidStudent(Student student)
+        public static bool IsValidStudent(Student student)
         {
             if (student == null)
             {
@@ -39,11 +39,11 @@ namespace UniversityApp.Forms.Validation
             return true;
         }
 
-        public static bool IsValidTeacherId(int teacherId)
+        public static bool IsValidStudentId(int studentId)
         {
-            if (teacherId <= 0)
+            if (studentId <= 0)
             {
-                throw new ArgumentException($"Invalid teacher id \'{teacherId}\'");
+                throw new ArgumentException($"Invalid student id \'{studentId}\'");
             }
 
             return true;

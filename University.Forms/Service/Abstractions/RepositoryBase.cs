@@ -1,18 +1,10 @@
-﻿using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UniversityApp.Entities;
+﻿using System.Data;
 
 namespace UniversityApp.Forms.Service.Abstractions
 {
     public abstract class RepositoryBase<T> : IRepositoryBase<T>
     {
-        protected readonly DataAccessProvider DataAccessProvider;
+        protected readonly IDataAccessProvider DataAccessProvider;
 
         protected RepositoryBase()
         {

@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UniversityApp.Entities;
 using UniversityApp.Forms.Service;
+using UniversityApp.Forms.Service.Abstractions;
 
 namespace UniversityApp.Forms.Validation
 {
     public class SubjectValidation
     {
-        private static readonly DataAccessProvider DataAccessProvider;
+        private static readonly IDataAccessProvider DataAccessProvider;
 
         static SubjectValidation()
         {

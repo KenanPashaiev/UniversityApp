@@ -60,12 +60,16 @@
     <Compile Include="Service\Abstractions\IRecordRepository.cs" />
     <Compile Include="Service\Abstractions\IRepositoryBase.cs" />
     <Compile Include="Service\Abstractions\IStudentRepository.cs" />
+    <Compile Include="Service\Abstractions\ISubjectRepository.cs" />
+    <Compile Include="Service\Abstractions\ITeacherRepository.cs" />
     <Compile Include="Service\Abstractions\IUniversityRepository.cs" />
     <Compile Include="Service\Abstractions\RepositoryBase.cs" />
     <Compile Include="Service\DataAccessProvider.cs" />
     <Compile Include="Service\Repositories\GroupRepository.cs" />
     <Compile Include="Service\Repositories\RecordRepository.cs" />
     <Compile Include="Service\Repositories\StudentRepository.cs" />
+    <Compile Include="Service\Repositories\SubjectRepository.cs" />
+    <Compile Include="Service\Repositories\TeacherRepository.cs" />
     <Compile Include="Service\Repositories\UniversityRepository.cs" />
     <Compile Include="Validation\GroupValidation.cs" />
     <Compile Include="Validation\RecordValidation.cs" />

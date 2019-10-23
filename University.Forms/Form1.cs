@@ -8,8 +8,8 @@ using System.Configuration;
 using System.Deployment.Application;
 using UniversityApp.Entities;
 using UniversityApp.Forms.Service;
+using UniversityApp.Forms.Service.Abstractions;
 using UniversityApp.Forms.Service.Repositories;
-using UniversityApp.Forms.Service.Validation;
 using UniversityApp.Forms.Validation;
 
 namespace UniversityApp.Forms
@@ -24,7 +24,7 @@ namespace UniversityApp.Forms
 
     public partial class Form1 : Form
     {
-        private readonly DataAccessProvider _dataAccessProvider;
+        private readonly IDataAccessProvider _dataAccessProvider;
         private readonly List<int> _inspectingList;
         private Inspecting _inspecting;
 
