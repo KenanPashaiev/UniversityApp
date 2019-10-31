@@ -16,10 +16,14 @@ namespace UniversityApp.Entities
             SubjectName = subjectName;
         }
 
-        public Subject(string subjectName, int teacherId, int universityId) : this(subjectName)
+        public Subject(string subjectName, int universityId) : this(subjectName)
+        {
+            UniversityId = universityId;
+        }
+
+        public Subject(string subjectName, int teacherId, int universityId) : this(subjectName, universityId)
         {
             TeacherId = teacherId;
-            UniversityId = universityId;
         }
     }
 }

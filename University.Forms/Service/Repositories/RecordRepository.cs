@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using UniversityApp.Entities;
 using UniversityApp.Forms.Service.Abstractions;
 using UniversityApp.Forms.Validation;
@@ -29,15 +30,7 @@ namespace UniversityApp.Forms.Service.Repositories
 
         public override void Update(Record record)
         {
-            if (RecordValidation.IsValidRecordId(record.RecordId) && 
-                RecordValidation.IsValidRecord(record))
-            {
-                DataAccessProvider.ExecuteNonQuery($"UPDATE Records SET " +
-                                                    $"Mark = {record.Mark}, " +
-                                                    $"StudentID = {record.StudentId}, " +
-                                                    $"SubjectID = {record.SubjectId} " +
-                                                    $"WHERE RecordID = {record.RecordId}");
-            }
+            if (record == null) throw new ArgumentNullException(nameof(record));
         }
 
         public override DataTable FindAll()

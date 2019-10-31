@@ -23,7 +23,6 @@ namespace UniversityApp.Forms.Service.Repositories
                 DataAccessProvider.ExecuteNonQuery($"DELETE Universities " +
                                                           $"WHERE UniversityID = {universityId}");
             }
-
         }
 
         public override void Update(University university)

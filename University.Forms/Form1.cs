@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Data.SqlClient;
 using System.Windows.Forms;
-using System.Configuration;
-using System.Deployment.Application;
 using UniversityApp.Entities;
 using UniversityApp.Forms.Service;
 using UniversityApp.Forms.Service.Abstractions;
 using UniversityApp.Forms.Service.Repositories;
-using UniversityApp.Forms.Validation;
 
 namespace UniversityApp.Forms
 {
@@ -42,68 +38,65 @@ namespace UniversityApp.Forms
         private void AddUniversityButton_Click(object sender, EventArgs e)
         {
             var universityRepository = new UniversityRepository();
-            var universityValidation = new UniversityValidation();
+            var universityName = addUniversityNameTextBox.Text;
+            var university = new University(universityName);
 
-            var university = new University(addUniversityNameTextBox.Text);
-
-            if (!universityValidation.IsValidUniversity(university) && _inspecting != Inspecting.Universities)
+            if (_inspecting != Inspecting.Universities)
             {
                 return;
             }
 
             universityRepository.Create(university);
-
             RefreshUniversitiesList();
         }
 
         private void AddGroupButton_Click(object sender, EventArgs e)
         {
             var groupRepository = new GroupRepository();
-            var groupValidation = new GroupValidation();
-
             var groupName = addGroupNameTextBox.Text;
             var group = new Group(groupName);
 
-            if (groupValidation.IsValidGroup(group))
+            if (_inspecting == Inspecting.Groups)
             {
                 return;
             }
 
             groupRepository.Create(group);
-
             RefreshGroupsList(_inspectingList.Last());
         }
 
         private void AddStudentButton_Click(object sender, EventArgs e)
         {
             var studentRepository = new StudentRepository();
-            var studentValidation = new StudentValidation();
 
             var name = addStudentNameTextBox.Text;
             var surname = addStudentSurnameTextBox.Text;
             var age = (int)addStudentAgeNumericUpDown.Value;
+
             var student = new Student(name, surname, age);
 
-            if (!studentValidation.IsValidStudent(student))
+            if (_inspecting == Inspecting.Students)
             {
                 return;
             }
 
             studentRepository.Create(student);
-
             RefreshStudentsList(_inspectingList.Last());
         }
 
         private void AddRecordButton_Click(object sender, EventArgs e)
         {
-            var table = _dataAccessProvider.ExecuteQuery("SELECT * FROM Subjects WHERE UniversityID = " + _inspectingList.First());
-            DataRow row = table.Select($"SubjectName = \'{subjectsComboBox.Text}\' ").Single();
-            var mark = subjectsNumeric.Value;
-            var subjectId = row.Field<int>("SubjectID");
+            var recordRepository = new RecordRepository();
+            var subjectRepository = new SubjectRepository();
 
-            _dataAccessProvider.ExecuteNonQuery("INSERT INTO Records (Mark, StudentID, SubjectID) " +
-                        $"values ('{mark}', '{_inspectingList.Last()}', {subjectId})");
+            var mark = (int)subjectsNumeric.Value;
+            var studentId = _inspectingList.Last();
+            var expression = $"SubjectName = \'{subjectsComboBox.SelectedItem}\'";
+            var subjectId = (int)subjectRepository.FindAll().Select(expression)[0]["SubjectID"];
 
+            var record = new Record(mark, studentId, subjectId);
+
+            recordRepository.Create(record);
             RefreshRecordsList(_inspectingList.Last());
         }
 
@@ -119,20 +112,20 @@ namespace UniversityApp.Forms
                 _inspectingList.RemoveAt(_inspectingList.Count - 1);
             }
 
-            if (_inspecting == Inspecting.Groups)
+            switch (_inspecting)
             {
-                RefreshUniversitiesList();
-                _inspecting = Inspecting.Universities;
-            }
-            else if(_inspecting == Inspecting.Students)
-            {
-                RefreshGroupsList(_inspectingList.Last());
-                _inspecting = Inspecting.Groups;
-            }
-            else if(_inspecting == Inspecting.StudentMarks)
-            {
-                RefreshStudentsList(_inspectingList.Last());
-                _inspecting = Inspecting.Students;
+                case Inspecting.Groups:
+                    RefreshUniversitiesList();
+                    _inspecting = Inspecting.Universities;
+                    break;
+                case Inspecting.Students:
+                    RefreshGroupsList(_inspectingList.Last());
+                    _inspecting = Inspecting.Groups;
+                    break;
+                case Inspecting.StudentMarks:
+                    RefreshStudentsList(_inspectingList.Last());
+                    _inspecting = Inspecting.Students;
+                    break;
             }
         }
 
@@ -144,17 +137,17 @@ namespace UniversityApp.Forms
                 return;
             }
 
-            if (_inspecting == Inspecting.Universities)
+            switch (_inspecting)
             {
-                SelectCellFromUniversityRow(e);
-            }
-            else if (_inspecting == Inspecting.Groups)
-            {
-                SelectCellFromGroupRow(e);
-            }
-            else if (_inspecting == Inspecting.Students)
-            {
-                SelectCellFromStudentRow(e);
+                case Inspecting.Universities:
+                    SelectCellFromUniversityRow(e);
+                    break;
+                case Inspecting.Groups:
+                    SelectCellFromGroupRow(e);
+                    break;
+                case Inspecting.Students:
+                    SelectCellFromStudentRow(e);
+                    break;
             }
         }
 
@@ -174,7 +167,7 @@ namespace UniversityApp.Forms
                 return;
             }
 
-            var universityRepository = new UniversityRepository();;
+            var universityRepository = new UniversityRepository();
 
             var table = universityRepository.FindAll();
             var universityId = table.Rows[e.RowIndex].Field<int>("UniversityID");
@@ -276,7 +269,7 @@ namespace UniversityApp.Forms
                 subjectsComboBox.Items.Add(subjectList.Rows[i].Field<string>(0));
             }
         }
-        
+
         private void DeleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var selectedRow = (DataRowView)universityDataGridView.SelectedRows[0].DataBoundItem;
@@ -314,6 +307,12 @@ namespace UniversityApp.Forms
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void EditSubjectsButton_Click(object sender, EventArgs e)
+        {
+            var form = new SubjectEditForm(_inspectingList.First());
+            form.Show();
         }
     }
 }
